@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <script src=
+    "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" href="/static/main.css" type="text/css">
+</header>
+<body>
+
+{% with messages = get_flashed_messages() %}
+  {% for message in messages %}
+      <div class="flash-msg">{{ message }}</div>
+  {% endfor %}
+{% endwith %}
+<div>
+<h4>Select three data points:</h4>
+<form action="/select_axes">
+    <label>X-axis: </label>
+    <select name='x-axis'>
+        {% for stat in stats %}
+        <option value="{{ stat }}">{{ stats[stat] }}</option>
+        {% endfor %}
+    </select><br>
+    <label>Y-axis: </label>
+    <select name='y-axis'>
+        {% for stat in stats %}
+        <option value="{{ stat }}">{{ stats[stat] }}</option>
+        {% endfor %}
+    </select><br>
+    <label>Bubble Size: </label>
+    <select name='bubble'>
+        {% for stat in stats %}
+        <option value="{{ stat }}">{{ stats[stat] }}</option>
+        {% endfor %}
+    </select><br>
+    <input type="submit" name="submit" value="Submit">
+</form>
+</div>
+
+<svg width="1000" height="500" class="chart">
+</svg>
+
+<svg width="1000" height="500" class="scale">
+</svg>
+
+<script>
+
+    $.get('/get_data.json', function(data) {
+        console.log(data);
+        var svg = d3.select("svg");
+
+        var x_all_coord = [];
+        var x_all_data = [];
+
+        var y_all_coord = [];
+        var y_all_data = [];
+        
+        var r_all_coord = [];
+        var r_all_data = [];
+
+        var names =[];
+
+        setTimeout(function() {
+            for (i = 0; i < 50; i++) {
+                // console.log('Beginning new iteration of loop.')
+                x_all_data.push(data[i]["{{ session['x_axis'] }}"])
+                y_all_data.push(data[i]["{{ session['y_axis'] }}"])
+                r_all_data.push(data[i]["{{ session['bubble'] }}"])
+                names.push(data[i]['state_name'])
+            } 
+
+            var x_max = Math.max(...x_all_data);
+            var x_min = Math.min(...x_all_data);
+
+            var y_max = Math.max(...y_all_data);
+            var y_min = Math.min(...y_all_data);
+
+            var r_max = Math.max(...r_all_data);
+            var r_min = Math.min(...r_all_data);
+
+            for (i = 0; i < 50; i++) {
+                x_all_coord.push((data[i]['unemployment'] - x_min) / x_max * 1000) 
+                y_all_coord.push(500 - ((data[i]['food_environment_index'] - y_min) / y_max * 1000))
+                r_all_coord.push((data[i]['adult_obesity'] - r_min) / r_max * 100)
+            }
+
+            var circle = svg.selectAll("circle")
+                            .data(r_all_coord)
+                            .enter().append("circle")
+                                .attr("cx", function(d, i) { return x_all_coord[i]})
+                                .attr("cy", function(d, i) { return y_all_coord[i]})
+                                .attr("r", function(d) { return d });
+
+            var text = svg.selectAll('text')
+                            .data(names)
+                            .enter().append('text')
+                                .attr('x', function(d, i) { return x_all_coord[i]; })
+                                .attr('y', function(d, i) { return y_all_coord[i]; })
+                                .text( function(d, i) { return names[i]; })
+                                    .attr('font-size', '12px')
+                                    .attr('font-family', 'sans-serif')
+                                    .attr('text-anchor', 'middle');
+
+            circle.style("fill", "gray");
+            circle.style("opacity", 0.5);
+
+        }, 1000);
+        
+    });
+
+
+
+
+
+</script>
+
+</body>
+</html>
