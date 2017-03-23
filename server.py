@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, flash, session, jso
 from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
 import requests
-# import states
+from states import pickle_state_names
 import pickle
+import timeit
 
 app = Flask(__name__)
 app.secret_key = 'asdfasdfasdf'
@@ -12,7 +13,10 @@ app.jinja_env.undefined = StrictUndefined
 
 @app.route('/')
 def show_data_viz():
+    """Shows data viz based on form input.
 
+    For now, construct select_axes route with get request form selections on the 
+    first round or session variables will throw a key error."""
     stats = {'adult_obesity': 'Adult Obesity',
              'unemployment': 'Unemployment',
              'food_environment_index': 'Food index'}
@@ -45,21 +49,25 @@ def select_axes():
 @app.route('/get_data.json')
 def get_data():
 
+    start_time = timeit.default_timer()
     # API call for list of dictionaries per state
     url = "http://api.datausa.io/api/?show=geo&sumlevel=state&required=" + session['x_axis'] + "," + session['y_axis'] + "," + session['bubble']
     json = requests.get(url).json()
     data = [dict(zip(json["headers"], d)) for d in json["data"]]
 
-    state_names = pickle.loads(pickle.load('state_names'))
-    print state_names
-    # for state_details in data:
-    #     geo_url = 'http://api.datausa.io/attrs/geo/' + state_details['geo']
-    #     json = requests.get(geo_url).json()
-    #     state_name = json["data"][0][1]
-    #     state_details["state_name"] = state_name
 
-    print data
+    file_object = open('state_names')
+    state_names = pickle.load(file_object)
 
+    for state in data:
+        state['state_name'] = state_names[state['geo']]
+
+    # If needed, can pickle state names again by uncommenting below.
+    # pickle_state_names(data)
+
+    elapsed = timeit.default_timer() - start_time
+    print 'DATA: ', data
+    print 'TIME REQUIRED: ', elapsed
     return jsonify(data)
 
 

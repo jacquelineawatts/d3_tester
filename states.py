@@ -16,3 +16,5 @@ def pickle_state_names(data):
         state_names[state_id] = state_name
 
     pickle.dump(state_names, file_object)
+
+    file_object.close()
