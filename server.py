@@ -12,11 +12,23 @@ app.jinja_env.undefined = StrictUndefined
 
 
 @app.route('/')
+def show_homepage():
+    """Displays index page."""
+
+    stats = {'adult_obesity': 'Adult Obesity',
+             'unemployment': 'Unemployment',
+             'food_environment_index': 'Food index'}
+
+    return render_template('index.html', stats=stats)
+
+
+@app.route('/results')
 def show_data_viz():
     """Shows data viz based on form input.
 
     For now, construct select_axes route with get request form selections on the 
     first round or session variables will throw a key error."""
+
     stats = {'adult_obesity': 'Adult Obesity',
              'unemployment': 'Unemployment',
              'food_environment_index': 'Food index'}
@@ -29,7 +41,7 @@ def show_data_viz():
     except KeyError:
         flash("Looks like you're missing something. Please select from the data sources below.")
 
-    return render_template('index.html',
+    return render_template('results.html',
                            stats=stats,
                            session_data=session_data,
                            )
@@ -43,7 +55,7 @@ def select_axes():
     session['y_axis'] = request.args.get('y-axis')
     session['bubble'] = request.args.get('bubble')
 
-    return redirect('/')
+    return redirect('/results')
 
 
 @app.route('/get_data.json')

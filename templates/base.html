@@ -1,0 +1,20 @@
+<html>
+<head>
+    <script src=
+    "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" href="/static/main.css" type="text/css">
+    <title>{% block head %}{% endblock %}</title>
+</head>
+<body>
+
+{% with messages = get_flashed_messages() %}
+  {% for message in messages %}
+      <div class="flash-msg">{{ message }}</div>
+  {% endfor %}
+{% endwith %}
+
+{% block body %}{% endblock %}
+</body>
+</html>
