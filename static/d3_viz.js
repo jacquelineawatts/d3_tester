@@ -2,6 +2,11 @@
 
 $.get('/get_data.json', function(data) {
     console.log(data['response_data']);
+
+    var div = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+
     var svg = d3.select("svg");
 
     var x_all_coord = [];
@@ -45,12 +50,30 @@ $.get('/get_data.json', function(data) {
             r_all_coord.push((state_data[i][bubble] - r_min) / r_max * 100)
         }
 
+
         var circle = svg.selectAll("circle")
                         .data(r_all_coord)
                         .enter().append("circle")
-                            .attr("cx", function(d, i) { return x_all_coord[i]})
-                            .attr("cy", function(d, i) { return y_all_coord[i]})
-                            .attr("r", function(d) { return d });
+                            .attr("cx", function(d, i) { return x_all_coord[i]; })
+                            .attr("cy", function(d, i) { return y_all_coord[i]; })
+                            .attr("r", function(d) { return d; })
+                            // .style("fill", "gray");
+                            .style("fill", function(d) {
+                                if (d < 10) { return "#1A3507"; }
+                                else if (d < 20) { return "#48841E"; }
+                                else if (d < 30) { return "#6ED129"; }
+                                else { return "#A8F970"; } 
+                            })
+                            .on('mouseover', function(d, i){ 
+                                console.log(div);
+                                div.transition().style('opacity', 1.0);
+                                div.html("<strong>" + names[i] + "</strong> " + d)
+                                    .style('left', d3.event.pageX + "px")
+                                    .style('top', d3.event.pageY + "px");
+                            }) 
+                            .on('mouseout', function(d, i) {
+                                div.transition().style('opacity', 0)
+                            });
 
         var text = svg.selectAll('text')
                         .data(names)
@@ -62,7 +85,7 @@ $.get('/get_data.json', function(data) {
                                 .attr('font-family', 'sans-serif')
                                 .attr('text-anchor', 'middle');
 
-        circle.style("fill", "gray");
+
         circle.style("opacity", 0.5);
 
     }, 1000);
