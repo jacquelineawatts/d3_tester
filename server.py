@@ -3,6 +3,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
 import requests
 from states import pickle_state_names
+from api_data import column_to_title
 import pickle
 import timeit
 
@@ -15,11 +16,7 @@ app.jinja_env.undefined = StrictUndefined
 def show_homepage():
     """Displays index page."""
 
-    stats = {'adult_obesity': 'Adult Obesity',
-             'unemployment': 'Unemployment',
-             'food_environment_index': 'Food index'}
-
-    return render_template('index.html', stats=stats)
+    return render_template('index.html', column_to_title=column_to_title)
 
 
 @app.route('/results')
@@ -28,10 +25,6 @@ def show_data_viz():
 
     For now, construct select_axes route with get request form selections on the 
     first round or session variables will throw a key error."""
-
-    stats = {'adult_obesity': 'Adult Obesity',
-             'unemployment': 'Unemployment',
-             'food_environment_index': 'Food index'}
 
     try:
         session_data = {}
@@ -42,7 +35,7 @@ def show_data_viz():
         flash("Looks like you're missing something. Please select from the data sources below.")
 
     return render_template('results.html',
-                           stats=stats,
+                           column_to_title=column_to_title,
                            session_data=session_data,
                            )
 
@@ -65,21 +58,30 @@ def get_data():
     # API call for list of dictionaries per state
     url = "http://api.datausa.io/api/?show=geo&sumlevel=state&required=" + session['x_axis'] + "," + session['y_axis'] + "," + session['bubble']
     json = requests.get(url).json()
-    data = [dict(zip(json["headers"], d)) for d in json["data"]]
+    response_data = [dict(zip(json["headers"], d)) for d in json["data"]]
 
 
     file_object = open('state_names')
     state_names = pickle.load(file_object)
 
-    for state in data:
+    for state in response_data:
         state['state_name'] = state_names[state['geo']]
 
     # If needed, can pickle state names again by uncommenting below.
     # pickle_state_names(data)
 
     elapsed = timeit.default_timer() - start_time
-    print 'DATA: ', data
+    print 'DATA: ', response_data
     print 'TIME REQUIRED: ', elapsed
+
+    columns = {}
+    for key in ['x_axis', 'y_axis', 'bubble']:
+        columns[key] = session[key]
+
+    data = {'response_data': response_data,
+            'columns': columns,
+            }
+
     return jsonify(data)
 
 

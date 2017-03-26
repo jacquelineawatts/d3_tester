@@ -6,20 +6,20 @@
 <form action="/select_axes">
     <label>X-axis: </label>
     <select name='x-axis'>
-        {% for stat in stats %}
-        <option value="{{ stat }}">{{ stats[stat] }}</option>
+        {% for column in column_to_title %}
+        <option value="{{ column }}">{{ column_to_title[column] }}</option>
         {% endfor %}
     </select><br>
     <label>Y-axis: </label>
     <select name='y-axis'>
-        {% for stat in stats %}
-        <option value="{{ stat }}">{{ stats[stat] }}</option>
+        {% for column in column_to_title %}
+        <option value="{{ column }}">{{ column_to_title[column] }}</option>
         {% endfor %}
     </select><br>
     <label>Bubble Size: </label>
     <select name='bubble'>
-        {% for stat in stats %}
-        <option value="{{ stat }}">{{ stats[stat] }}</option>
+        {% for column in column_to_title %}
+        <option value="{{ column }}">{{ column_to_title[column] }}</option>
         {% endfor %}
     </select><br>
     <input type="submit" name="submit" value="Submit">
