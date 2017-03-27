@@ -1,8 +1,12 @@
+body {
+    padding: 20px 20px 20px 20px;
+}
+
 .chart {
-    padding: 30px 30px 30px 30px;
+    padding: 0px 20px 20px 20px;
 }
 
 .tooltip {
-    padding-top: 25px;
+    padding-top: 20px;
     font-size: 20px;
 }
