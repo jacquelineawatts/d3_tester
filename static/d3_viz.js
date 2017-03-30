@@ -45,8 +45,8 @@ $.get('/get_data.json', function(data) {
         var r_min = Math.min(...r_all_data);
 
         for (i = 0; i < 50; i++) {
-            x_all_coord.push((state_data[i][x_axis] - x_min) / x_max * 1000) 
-            y_all_coord.push(500 - ((state_data[i][y_axis] - y_min) / y_max * 1000))
+            x_all_coord.push((state_data[i][x_axis] - x_min) / x_max * 1000)
+            y_all_coord.push(600 - ((state_data[i][y_axis] - y_min) / y_max * 1000))
             r_all_coord.push((state_data[i][bubble] - r_min) / r_max * 100)
         }
 
